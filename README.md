@@ -99,6 +99,8 @@ mysql2psql:
 
   report_status: json    # false, json, xml
 
+  update_primary_keys: true
+
   # If clear_schema is true, the public schema will be recreated before conversion
   # The import will fail if both clear_schema and suppress_ddl are true.
   clear_schema: false

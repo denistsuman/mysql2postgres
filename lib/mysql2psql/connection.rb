@@ -170,6 +170,25 @@ class Mysql2psql
       end
     end
 
+    def update_primary_keys
+      statement = "
+        SELECT tc.table_name, kc.column_name
+        FROM
+            information_schema.table_constraints tc,
+            information_schema.key_column_usage kc
+        WHERE
+            tc.constraint_type = 'PRIMARY KEY'
+            AND kc.table_name = tc.table_name AND kc.table_schema = tc.table_schema
+            AND kc.constraint_name = tc.constraint_name
+        ORDER BY 1, 2;"
+
+      primary_keys = run_statement(statement)
+      primary_keys.each do |primary_key|
+        next if primary_key['table_name'] == 'schema_migrations'
+        run_statement "SELECT setval('#{primary_key['table_name']}_id_seq', (SELECT MAX(#{primary_key['column_name']}) FROM #{primary_key['table_name']}));"
+      end
+    end
+
     def raise_nil_connection
       fail 'No Connection'
     end

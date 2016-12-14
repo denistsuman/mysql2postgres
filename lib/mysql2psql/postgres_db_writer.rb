@@ -19,5 +19,9 @@ class Mysql2psql
     def clear_schema
       connection.clear_schema
     end
+
+    def update_primary_keys
+      connection.update_primary_keys
+    end
   end
 end

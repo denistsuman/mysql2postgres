@@ -14,6 +14,7 @@ class Mysql2psql
       @force_truncate = options.force_truncate(false)
       @preserve_order = options.preserve_order(false)
       @clear_schema = options.clear_schema(false)
+      @update_primary_keys = options.update_primary_keys(false)
     end
 
     def convert
@@ -64,10 +65,8 @@ class Mysql2psql
 
       writer.close
 
-      if @clear_schema
-        writer.clear_schema
-      end
-
+      writer.clear_schema if @clear_schema
+      writer.update_primary_keys if @update_primary_keys
       writer.inload
 
       0
