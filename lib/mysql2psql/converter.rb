@@ -22,8 +22,11 @@ class Mysql2psql
                .reject { |table| @exclude_tables.include?(table.name) }
                .select { |table| @only_tables ? @only_tables.include?(table.name) : true }
 
-      if @preserve_order
+      puts "Tables to migrate:"
+      puts tables.map(&:name)
+      puts "\n"
 
+      if @preserve_order
         reordered_tables = []
 
         @only_tables.each do |only_table|
@@ -32,28 +35,37 @@ class Mysql2psql
         end
 
         tables = reordered_tables
-
       end
 
-      tables.each do |table|
-        writer.write_table(table)
-      end unless @suppress_ddl
+      if @suppress_ddl
+        puts "Skipping table writing due to suppress_ddl option."
+      else
+        tables.each do |table|
+          puts "Writing table #{table.name}"
+          writer.write_table(table)
+        end
+        puts "\n"
+      end
 
       # tables.each do |table|
       #   writer.truncate(table) if force_truncate && suppress_ddl
       #   writer.write_contents(table, reader)
       # end unless @suppress_data
 
-      unless @suppress_data
-
+      if @suppress_data
+        puts "Skipping data writing due to suppress_data option."
+      else
         tables.each do |table|
+          puts "Truncating table #{table.name}"
           writer.truncate(table) if force_truncate && suppress_ddl
         end
+        puts "\n"
 
         tables.each do |table|
+          puts "Writing table #{table.name} data"
           writer.write_contents(table, reader)
         end
-
+        puts "\n"
       end
 
       tables.each do |table|
@@ -65,8 +77,20 @@ class Mysql2psql
 
       writer.close
 
-      writer.clear_schema if @clear_schema
-      writer.update_primary_keys if @update_primary_keys
+      if @clear_schema
+        puts "Schema clearing"
+        writer.clear_schema
+      else
+        puts "Skipping schema clearing due to clear_schema option."
+      end
+
+      if @update_primary_keys
+        puts "Primary keys updating"
+        writer.update_primary_keys
+      else
+        puts "Skipping primary keys couters updating due to update_primary_keys option."
+      end
+
       writer.inload
 
       0
