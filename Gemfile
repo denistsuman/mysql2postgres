@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rake', '~> 10.3'
-gem 'mysql-pr', '~> 2.9'
+gem 'mysql-pr', '~> 2.9', git: 'https://github.com/denistsuman/mysql-pr' # fixed encoding
 gem 'postgres-pr', '~> 0.6'
 
 platforms :jruby do
